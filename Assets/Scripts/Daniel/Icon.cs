@@ -21,10 +21,10 @@ public class Icon : MonoBehaviour
     }
 
     [SerializeField] private Icons iconType;
-    
+
     [SerializeField] private int baseMultiplier;
     [SerializeField] private int dropChance;
-    
+
     public int GetMultiplier()
     {
         return baseMultiplier;
@@ -33,5 +33,10 @@ public class Icon : MonoBehaviour
     public int GetDropChance()
     {
         return dropChance;
+    }
+    
+    public Icons GetIconType()
+    {
+        return iconType;
     }
 }
