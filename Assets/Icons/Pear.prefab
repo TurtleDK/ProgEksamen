@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4916234766199469551}
   - component: {fileID: 517743145595246858}
   - component: {fileID: 6764627130508840726}
+  - component: {fileID: -6079031306273476621}
   m_Layer: 0
   m_Name: Pear
   m_TagString: Untagged
@@ -100,3 +101,20 @@ MonoBehaviour:
   iconType: 6
   baseMultiplier: 0
   dropChance: 13
+  location: {x: 3, y: 2}
+--- !u!111 &-6079031306273476621
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6725482365205154368}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0

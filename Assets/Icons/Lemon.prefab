@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3326998757671555063}
   - component: {fileID: 3140181905253709725}
   - component: {fileID: 4676785990964376968}
+  - component: {fileID: 3277983316547891717}
   m_Layer: 0
   m_Name: Lemon
   m_TagString: Untagged
@@ -100,3 +101,20 @@ MonoBehaviour:
   iconType: 4
   baseMultiplier: 0
   dropChance: 10
+  location: {x: 1, y: 3}
+--- !u!111 &3277983316547891717
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013685407167639287}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0

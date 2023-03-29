@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8415605515302733012}
   - component: {fileID: 7719189543703408312}
   - component: {fileID: 6328651967448488933}
+  - component: {fileID: -3562692073894911459}
   m_Layer: 0
   m_Name: Grape
   m_TagString: Untagged
@@ -100,3 +101,20 @@ MonoBehaviour:
   iconType: 3
   baseMultiplier: 0
   dropChance: 5
+  location: {x: 5, y: 1}
+--- !u!111 &-3562692073894911459
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1902085224413628979}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0

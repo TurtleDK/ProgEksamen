@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8843593234492831166}
   - component: {fileID: 5627679457877144481}
   - component: {fileID: 6383939611697463848}
+  - component: {fileID: 816370988690452529}
   m_Layer: 0
   m_Name: Cherry
   m_TagString: Untagged
@@ -100,3 +101,20 @@ MonoBehaviour:
   iconType: 2
   baseMultiplier: 0
   dropChance: 2
+  location: {x: 3, y: 2}
+--- !u!111 &816370988690452529
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159433668003497554}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
