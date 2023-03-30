@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Random = System.Random;
 
 public class SlotManager : MonoBehaviour
@@ -20,8 +22,6 @@ public class SlotManager : MonoBehaviour
 
     private int amount;
     private int amountMax;
-
-    private List<Coroutine> routines = new();
 
     private bool stopWiggle;
     private bool canRoll = true;
@@ -116,6 +116,7 @@ public class SlotManager : MonoBehaviour
 
     private void GetAllIcons()
     {
+        var winIcons = new List<GameObject>();
         var types = new List<Icon>();
         var connections = 0;
         
@@ -142,10 +143,10 @@ public class SlotManager : MonoBehaviour
             amountMax += typeAmount;
             connections++;
             
-            foreach (var spawnedIcon in spawnedIcons.Where(
-                         icon => icon.GetComponent<Icon>().GetIconType() == type.GetIconType()).ToList())
+            foreach (var spawnedIcon in spawnedIcons.Where
+                     (icon => icon.GetComponent<Icon>().GetIconType() == type.GetIconType()).ToList())
             {
-                StartCoroutine(Wiggle(spawnedIcon));
+                winIcons.Add(spawnedIcon);
             }
         }
 
@@ -155,9 +156,38 @@ public class SlotManager : MonoBehaviour
             return;
         }
 
-        StartCoroutine(Wait(true));
+        StartCoroutine(Wiggle(winIcons));
     }
 
+    private void MoveIconsDown()
+    {
+        var anyIconsMoved = false; // Add a flag to check if any icons were moved
+
+        foreach (var spawnedIcon in spawnedIcons)
+        {
+            var icon = spawnedIcon.GetComponent<Icon>();
+
+            if (icon.GetIconType() != Icon.Icons.Empty) continue;
+
+            var location = icon.location;
+
+            while (IsThereEmpty((int) location.x))
+            {
+                anyIconsMoved = true; // Set the flag to true if you're moving any icons
+                MoveRowDown((int) location.x, (int) location.y);
+            }
+        }
+
+        // Check if any icons were moved before starting the DropIcon coroutine
+        if (!anyIconsMoved) return;
+
+        StartCoroutine(DropIcon());
+
+        //StartCoroutine(Wait(false));
+        
+    }
+    
+    /*
     private void MoveIconsDown()
     {
         foreach (var spawnedIcon in spawnedIcons)
@@ -183,6 +213,7 @@ public class SlotManager : MonoBehaviour
         
         StartCoroutine(Wait(false));
     }
+    */
 
     private void MoveRowDown(int row, int startPoint)
     {
@@ -236,34 +267,41 @@ public class SlotManager : MonoBehaviour
         return returnValue;
         */
     }
-    
+
     private Vector3 GetWorldPosition(Vector2 location)
     {
-        return new Vector3(location.x - (float) slots.GetLength(0) / 2, location.y - (float) slots.GetLength(1) / 2);
+        return new Vector3(location.x - (float)slots.GetLength(0) / 2f, location.y - (float)slots.GetLength(1) / 2f);
     }
     
-    private IEnumerator Wiggle(GameObject icon)
+    private IEnumerator Wiggle(List<GameObject> winIcons)
     {
-        var anim = icon.GetComponent<Animation>();
-        var originalRotation = icon.transform.rotation;
-        anim.Play();
-
-        while (anim.isPlaying)
+        foreach (var icon in winIcons)
         {
-            yield return null;
-            if (!stopWiggle) continue;
-            
-            anim.Stop();
-            icon.transform.rotation = originalRotation;
+            var anim = icon.GetComponent<Animation>();
+            anim.Play();
         }
-        
-        spawnedIcons.Remove(icon);
+
+        while (!stopWiggle)
+        {
+            if (winIcons.Any(icon => icon.GetComponent<Animation>().isPlaying)) yield return null;
+            else stopWiggle = true;
+        }
+
+        foreach (var icon in winIcons)
+        {
+            var anim = icon.GetComponent<Animation>();
+            anim.Stop();
             
-        var location = icon.GetComponent<Icon>().location;
-        slots[(int) location.x, (int) location.y] = emptyIcon;
-        SpawnEmpty(icon);
+            spawnedIcons.Remove(icon);
+            
+            var location = icon.GetComponent<Icon>().location;
+            slots[(int) location.x, (int) location.y] = emptyIcon;
+            SpawnEmpty(icon);
+        }
+
+        yield return new WaitForSeconds(0.5f);
         
-        amount++;
+        MoveIconsDown();
     }
 
     private void SpawnEmpty(GameObject replacedIcon)
@@ -275,27 +313,53 @@ public class SlotManager : MonoBehaviour
         Destroy(replacedIcon);
     }
 
-    private IEnumerator DropIcon(GameObject icon)
+    private IEnumerator DropIcon()
     {
-        var targetPosition = GetWorldPosition(icon.GetComponent<Icon>().location);
+        const float step = 2f;
 
-        // Loop until the GameObject reaches the target position
-        while (icon.transform.position.y > targetPosition.y)
+        var counted = false;
+        var notFinished = spawnedIcons.Count;
+
+        while (notFinished > 0)
         {
-            print("What");
-            
-            // Move the GameObject towards the target position at a constant speed
-            icon.transform.position = Vector3.MoveTowards(icon.transform.position, targetPosition, 10 * Time.deltaTime);
+            var icon = spawnedIcons[0].GetComponent<Icon>();
+            var worldPos = GetWorldPosition(icon.location);
+            var iconPos = icon.gameObject.transform.position;
 
-            // Yield and wait for the next frame
+            print("worldPosition: " + worldPos + " | " + "spawnedIcon.transform.position: " +
+                  icon.location);
+            
+            foreach (var spawnedIcon in spawnedIcons.Where
+                     (icon => icon.transform.position != GetWorldPosition(icon.GetComponent<Icon>().location) &&
+                              icon.GetComponent<Icon>().GetIconType() != Icon.Icons.Empty))
+            {
+                if (notFinished == 0) break;
+                
+                var worldPosition = GetWorldPosition(spawnedIcon.GetComponent<Icon>().location);
+                print("worldPosition: " + worldPosition + " | " + "spawnedIcon.transform.position: " + spawnedIcon.transform.position + " | " + "notFinished: " + notFinished);
+                if (!counted)
+                {
+                    counted = true;
+                    notFinished++;
+                }
+                
+                spawnedIcon.transform.position = Vector3.MoveTowards( spawnedIcon.transform.position, 
+                    worldPosition, 
+                    step * Time.deltaTime);
+                
+                if (Vector2.Distance(spawnedIcon.transform.position, worldPosition) < 0.01f) notFinished--;
+            }
             yield return null;
         }
-
-        // Snap the GameObject to the exact target position
-        icon.transform.position = targetPosition;
-        amount++;
+        
+        print("Moved");
+        
+        yield return new WaitForSeconds(0.5f);
+        
+        StartCoroutine(DrawScreen(true));
     }
 
+    // Brugte før til at vente på at alle coroutine var færdige men det tog for meget computer kraft
     private IEnumerator Wait(bool wiggle)
     {
         while (amount < amountMax)
@@ -307,8 +371,6 @@ public class SlotManager : MonoBehaviour
         amountMax = 0;
         
         if (wiggle) stopWiggle = false;
-
-        yield return new WaitForSeconds(0.5f);
 
         if (wiggle) MoveIconsDown();
         else StartCoroutine(DrawScreen(true));
