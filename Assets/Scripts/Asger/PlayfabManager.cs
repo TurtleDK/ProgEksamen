@@ -62,7 +62,7 @@ public class PlayfabManager : MonoBehaviour
     }
     void OnPasswordReset(SendAccountRecoveryEmailResult result)
     {
-        messageText.text = "Password reset email send :)";
+        messageText.text = "Password reset email send :)"; 
     }
 
 }
