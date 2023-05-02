@@ -55,24 +55,4 @@ public class Icon : MonoBehaviour
     {
         movedDown = transform.position == new Vector3(location.x, location.y, transform.position.z);
     }
-
-    IEnumerator DropDown()
-    {
-        if (movedDown) yield break;
-
-        var pos = transform.position;
-        
-        var startPos = pos;
-        var targetPos = new Vector3(location.x, location.y, pos.z);
-
-        yield return new WaitForEndOfFrame();
-        while (transform.position != targetPos)
-        {
-            transform.position = Vector3.Lerp(startPos, targetPos, timer);
-            timer += Time.deltaTime * 2;
-            yield return null;
-        }
-
-        movedDown = true;
-    }
 }

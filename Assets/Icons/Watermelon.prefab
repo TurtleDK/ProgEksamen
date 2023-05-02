@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6661917212710430124}
   - component: {fileID: 8748172603702729140}
   - component: {fileID: 6783151999697027491}
+  - component: {fileID: -5618935317695002956}
   m_Layer: 0
   m_Name: Watermelon
   m_TagString: Untagged
@@ -100,3 +101,20 @@ MonoBehaviour:
   iconType: 9
   baseMultiplier: 0
   dropChance: 10
+  location: {x: 3, y: 3}
+--- !u!111 &-5618935317695002956
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 264586769623119038}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 83a29f3f70f21b748b7666a4dc9d219e, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
