@@ -202,6 +202,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -247,6 +248,16 @@ MonoBehaviour:
   - {fileID: 4418147008136379186, guid: 230a467c066c6e343862b4cc1bcdbeb1, type: 3}
   - {fileID: 8468577855954572387, guid: 1adc1b9b17a469e4cb5898689804b5ae, type: 3}
   emptyIcon: {fileID: 1793730654641254345, guid: ea97c1c4aa3444b48b969920ca71c801, type: 3}
+  allIcons:
+  - {fileID: 4418147008136379186, guid: 230a467c066c6e343862b4cc1bcdbeb1, type: 3}
+  - {fileID: 8468577855954572387, guid: 1adc1b9b17a469e4cb5898689804b5ae, type: 3}
+  - {fileID: 6383939611697463848, guid: c7b6575c25161384c9c32c2aa6d4dfdd, type: 3}
+  - {fileID: 1793730654641254345, guid: ea97c1c4aa3444b48b969920ca71c801, type: 3}
+  - {fileID: 6328651967448488933, guid: 9558ba4339e86cc45a06e9446ee2e81b, type: 3}
+  - {fileID: 4676785990964376968, guid: edbff6ff3c3f9aa4e935e45014ee8c47, type: 3}
+  - {fileID: 6764627130508840726, guid: 65dec64a45163f44087cf47b424d6df9, type: 3}
+  - {fileID: 1165588627547122008, guid: dc793e8be43c8164798070babe82e367, type: 3}
+  - {fileID: 6783151999697027491, guid: c2a486909f52bb2489bc32f975865973, type: 3}
 --- !u!4 &614961233
 Transform:
   m_ObjectHideFlags: 0
@@ -257,6 +268,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1

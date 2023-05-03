@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,7 +23,7 @@ public class Icon : MonoBehaviour
 
     [SerializeField] private Icons iconType;
 
-    [SerializeField] private int baseMultiplier;
+    [SerializeField] private float baseMultiplier;
     [SerializeField] private int dropChance;
 
     public Vector2 location;
@@ -31,7 +32,7 @@ public class Icon : MonoBehaviour
 
     private float timer = 0;
     
-    public int GetMultiplier()
+    public float GetMultiplier()
     {
         return baseMultiplier;
     }
@@ -40,19 +41,9 @@ public class Icon : MonoBehaviour
     {
         return dropChance;
     }
-    
-    public bool GetMovedDown()
-    {
-        return movedDown;
-    }
-    
+
     public Icons GetIconType()
     {
         return iconType;
-    }
-
-    public void UpdateMovedDown()
-    {
-        movedDown = transform.position == new Vector3(location.x, location.y, transform.position.z);
     }
 }

@@ -25,8 +25,12 @@ public class SlotManager : MonoBehaviour
     private int amount;
     private int amountMax;
 
+    [SerializeField] private Icon[] allIcons;
+
     private bool stopWiggle;
     private bool canRoll = true;
+    private bool canSkip = false;
+    
     private bool firstRun = true;
 
     Icon[,] slots = new Icon[6, 5];
@@ -47,13 +51,23 @@ public class SlotManager : MonoBehaviour
                 StopCoroutines();
                 RollSlot();
             }
-            else stopWiggle = true;
+            else if (canSkip)
+            {
+                stopWiggle = true;
+                canSkip = false;
+            }
         }
 
-        if (Input.GetKeyDown(KeyCode.L)) RollSlot(false);
-
-        if (Input.GetKeyDown(KeyCode.J)) MoveIconsDown();
-        
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            var EV = 0f;
+            foreach (var icon in allIcons)
+            {
+                EV += ((float)icon.GetDropChance() / 100) * icon.GetMultiplier() * 8;
+            }
+            
+            print("EV: " + EV);
+        }
     }
     
     private void StopCoroutines()
@@ -204,24 +218,12 @@ public class SlotManager : MonoBehaviour
         return false;
     }
 
-    private void MoveRowDown(int row)
-    {
-        for (int i = slots.GetLength(0) - 1; i > 0; i--)
-        {
-            if (slots[row, i].GetIconType() == Icon.Icons.Empty && slots[row, i - 1].GetIconType() != Icon.Icons.Empty)
-            {
-                slots[row, i] = slots[row, i + 1];
-                slots[row, i].location = new Vector2(row, i);
-                slots[row, i + 1] = emptyIcon;
-            }
-        }
-    }
-
-    
     private void MoveIconsDown()
     {
+        
+        /*
         var anyIconsMoved = false; // Add a flag to check if any icons were moved
-
+        
         foreach (var spawnedIcon in spawnedIcons)
         {
             var icon = spawnedIcon.GetComponent<Icon>();
@@ -240,9 +242,14 @@ public class SlotManager : MonoBehaviour
                 catchInt++;
             }
         }
+        
 
         // Check if any icons were moved before starting the DropIcon coroutine
         if (!anyIconsMoved) return;
+
+        */
+        
+        //LAV NY MOVEICONSDOWN Som kun køre igennem en gang
 
         var coroutine = StartCoroutine(DropIcon());
         runningCoroutine.Add(coroutine);
@@ -251,15 +258,18 @@ public class SlotManager : MonoBehaviour
         
     }
     
+    /*
     private void MoveRowDown(int row, int startPoint)
     {
         for (int i = startPoint; i < slots.GetLength(1) - 1; i++)
         {
+            if (slots[row, i].GetIconType() != Icon.Icons.Empty) break;
             slots[row, i] = slots[row, i + 1];
             slots[row, i].location = new Vector2(row, i);
             slots[row, i + 1] = emptyIcon;
         }
     }
+    */
     
     /*
     private void MoveIconsDown()
@@ -351,6 +361,8 @@ public class SlotManager : MonoBehaviour
     
     private IEnumerator Wiggle(List<GameObject> winIcons)
     {
+        canSkip = true;
+        
         foreach (var icon in winIcons)
         {
             var anim = icon.GetComponent<Animation>();
