@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iconType: 4
-  baseMultiplier: 0
+  baseMultiplier: 0.05
   dropChance: 10
   location: {x: 1, y: 3}
 --- !u!111 &3277983316547891717
