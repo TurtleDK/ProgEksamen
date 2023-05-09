@@ -2,17 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Random = System.Random;
 
 public class SlotManager : MonoBehaviour
 {
-    //Hvis ikonet allerede er spawnet, så skal den ikke spanwne det igen
-    //
-    
     [SerializeField] private Icon[] allIcons; //All possible icons except empty
     [SerializeField] Icon emptyIcon; //Icon used to fill the slot if it is empty
     
@@ -28,6 +22,7 @@ public class SlotManager : MonoBehaviour
 
     Icon[,] slots = new Icon[6, 5]; //Holds the icons in a 2D array in the current roll
 
+    //Is run on the first frame
     void Start()
     {
         rnd = new Random(); //Creates a new random
@@ -35,6 +30,7 @@ public class SlotManager : MonoBehaviour
         RollSlot(); //Rolls the first slot
     }
     
+    //Runs every frame
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space)) //If player presses space
@@ -121,28 +117,29 @@ public class SlotManager : MonoBehaviour
             yield break;
         }
 
-        if (reDraw) //If reDraw it then 
+        if (reDraw) //If reDraw it then needs to roll for the empty slots
         {
             yield return new WaitForSeconds(0.5f);
             RollSlot(false);
         }
-        else GetAllIcons();
+        else GetAllIcons(); //If not reDraw then it should calculate the hits
     }
 
-    private void GetAllIcons()
+    private void GetAllIcons() //Calculates the icon hits
     {
         var winIcons = new List<GameObject>();
         var types = new List<Icon>();
         var connections = 0;
         
-        foreach (var icon in allIcons)
+        foreach (var icon in allIcons) //Gets all icon types
         {
             if (!types.Contains(icon)) types.Add(icon);
         }
         
-        foreach (var type in types)
+        foreach (var type in types) //Loops through all the icon types gets the amount of each type
         {
-            var typeAmount = slots.Cast<Icon>().Count(icon => icon.GetIconType() == type.GetIconType());
+            //Contains the amount of the specific icon type in the slot
+            var typeAmount = slots.Cast<Icon>().Count(icon => icon.GetIconType() == type.GetIconType()); 
 
             /* Samme som den over
             var amount = 0;
