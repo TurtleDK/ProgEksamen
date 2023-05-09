@@ -26,104 +26,107 @@ public class SlotManager : MonoBehaviour
     
     private bool firstRun = true; //If the game is started the slot should not calculate any hits
 
-    Icon[,] slots = new Icon[6, 5];
+    Icon[,] slots = new Icon[6, 5]; //Holds the icons in a 2D array in the current roll
 
     void Start()
     {
-        rnd = new Random();
+        rnd = new Random(); //Creates a new random
 
-        RollSlot();
+        RollSlot(); //Rolls the first slot
     }
     
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space)) //If player presses space
         {
-            if (canRoll)
+            if (canRoll) //If the player can roll
             {
-                RollSlot();
+                RollSlot(); //Rolls the slot
             }
-            else if (canSkip)
+            else if (canSkip) //if the player can skip the "Wiggle" animation
             {
                 stopWiggle = true;
                 canSkip = false;
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.M))
+        //Only used for testing and development purposes
+        if (Input.GetKeyDown(KeyCode.M)) //Used to calculate the Estimated Value of the slot
         {
-            var EV = 0f;
-            foreach (var icon in allIcons)
+            var EV = 0f; //Resets the EV
+            foreach (var icon in allIcons) //Loops through all the icons
             {
-                EV += ((float)icon.GetDropChance() / 100) * icon.GetMultiplier() * 8;
+                EV += ((float)icon.GetDropChance() / 100) * icon.GetMultiplier() * 8; //Calculates the EV for the specific icon and adds it to the total EV
             }
             
-            print("EV: " + EV);
+            print("EV: " + EV); //Prints EV
         }
     }
 
-    private void RollSlot(bool reRoll = true)
+    //Rolls the slot
+    private void RollSlot(bool reRoll = true) //If the "reRoll" parameter is not set it is then true. This is used to check if the slot should be re-rolled or not
     {
-        canRoll = false;
+        canRoll = false; //If the player re-rolls the slot they can't roll again until the slot is done rolling
         
+        //Loops through the 2D array
         for (int i = 0; i < slots.GetLength(0); i++)
         {
             for (int j = 0; j < slots.GetLength(1); j++)
             {
+                //If reRoll is true, then the slot should be re-rolled, which means re-rolling the entire slot 
                 if (reRoll)
                 {
                     slots[i, j] = GetRandomIcon();
                     continue;
                 }
 
+                //If reRoll is false, then should the empty icons be rerolled and filled.
                 if (slots[i, j].GetIconType() == emptyIcon.GetIconType()) slots[i, j] = GetRandomIcon();
             }
         }
         
+        //Draws the screen with the new icons in a coroutine
         StartCoroutine(DrawScreen());
     }
 
     private IEnumerator DrawScreen(bool reDraw = false)
     {
-        foreach (var spawnedIcon in spawnedIcons)
+        foreach (var spawnedIcon in spawnedIcons) //Destroys all the spawned icons
         {
             Destroy(spawnedIcon);
         }
 
-        spawnedIcons.Clear();
+        spawnedIcons.Clear(); //Clears the list of spawned icons
         
+        //Loops through the slots 2D array
         for (int i = 0; i < slots.GetLength(0); i++)
         {
             for (int j = 0; j < slots.GetLength(1); j++)
             {
+                //Spawns the new icon and places it in the right position compared to the 2D array
                 var spawnIcon = Instantiate(slots[i,j].gameObject, 
                     new Vector3(i - (float) slots.GetLength(0) / 2, j - (float) slots.GetLength(1) / 2, 0), 
                     Quaternion.identity);
 
-                spawnIcon.GetComponent<Icon>().location = new Vector2(i, j);
+                spawnIcon.GetComponent<Icon>().location = new Vector2(i, j); //Sets local variables for the spawned icon
 
-                spawnedIcons.Add(spawnIcon);
+                spawnedIcons.Add(spawnIcon); //Adds the spawned icon to the list
             }
         }
 
-        if (firstRun)
+        if (firstRun) //If the game is started the slot should not calculate any hits
         {
             firstRun = false;
             canRoll = true;
             yield break;
         }
-        
-        switch (reDraw)
+
+        if (reDraw) //If reDraw it then 
         {
-            case true:
-                yield return new WaitForSeconds(0.5f);
-                RollSlot(false);
-                break;
-            
-            case false:
-                GetAllIcons();
-                break;
+            yield return new WaitForSeconds(0.5f);
+            RollSlot(false);
         }
+        else GetAllIcons();
     }
 
     private void GetAllIcons()
