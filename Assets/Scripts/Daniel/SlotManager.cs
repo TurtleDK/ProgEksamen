@@ -150,7 +150,7 @@ public class SlotManager : MonoBehaviour
             }
             */
 
-            if (typeAmount < 8) continue; //Goes to the next type if the type amount is less than 8
+            if (typeAmount <= 8) continue; //Goes to the next type if the type amount is less than 8
             
             connections++; //Adds one to the total connections
             

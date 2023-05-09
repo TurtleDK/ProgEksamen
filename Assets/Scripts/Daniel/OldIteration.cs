@@ -1,7 +1,7 @@
 ﻿namespace Daniel
 {
     public class OldIteration
-    {
+    { 
         // Used before to wait for the "Wiggle" icons to finish animating
     /*
     private IEnumerator Wait(bool wiggle)
