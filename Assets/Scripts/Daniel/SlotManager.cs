@@ -13,25 +13,18 @@ public class SlotManager : MonoBehaviour
     //Hvis ikonet allerede er spawnet, så skal den ikke spanwne det igen
     //
     
-    [SerializeField] Icon[] icons;
-    [SerializeField] Icon emptyIcon;
+    [SerializeField] private Icon[] allIcons; //All possible icons except empty
+    [SerializeField] Icon emptyIcon; //Icon used to fill the slot if it is empty
     
-    private List<GameObject> spawnedIcons = new ();
+    private List<GameObject> spawnedIcons = new (); //Holds all the spawned icon GameObjects
+
+    private Random rnd; //Random used to get random icons
+
+    private bool stopWiggle; //Is used to stop the wiggle animation
+    private bool canRoll = true; //Used to check if player can roll the slot
+    private bool canSkip; //Used to check if player can skip the "Wiggle" animation
     
-    private List<Coroutine> runningCoroutine = new ();
-
-    private Random rnd;
-
-    private int amount;
-    private int amountMax;
-
-    [SerializeField] private Icon[] allIcons;
-
-    private bool stopWiggle;
-    private bool canRoll = true;
-    private bool canSkip = false;
-    
-    private bool firstRun = true;
+    private bool firstRun = true; //If the game is started the slot should not calculate any hits
 
     Icon[,] slots = new Icon[6, 5];
 
@@ -96,8 +89,6 @@ public class SlotManager : MonoBehaviour
         {
             Destroy(spawnedIcon);
         }
-        
-        print("Wtf");
 
         spawnedIcons.Clear();
         
@@ -141,7 +132,7 @@ public class SlotManager : MonoBehaviour
         var types = new List<Icon>();
         var connections = 0;
         
-        foreach (var icon in icons)
+        foreach (var icon in allIcons)
         {
             if (!types.Contains(icon)) types.Add(icon);
         }
@@ -160,8 +151,7 @@ public class SlotManager : MonoBehaviour
             */
 
             if (typeAmount < 8) continue;
-
-            amountMax += typeAmount;
+            
             connections++;
             
             foreach (var spawnedIcon in spawnedIcons.Where
@@ -335,7 +325,7 @@ public class SlotManager : MonoBehaviour
         var currentChance = 0;
         var returnIcon = emptyIcon;
         
-        foreach (var icon in icons)
+        foreach (var icon in allIcons)
         {
             if (rndValue >= currentChance && rndValue <= currentChance + icon.GetDropChance()) returnIcon = icon;
 
@@ -347,7 +337,7 @@ public class SlotManager : MonoBehaviour
 
     private int GetMaxChance()
     {
-        return icons.Sum(icon => icon.GetDropChance());
+        return allIcons.Sum(icon => icon.GetDropChance());
         
         /* Det samme som den her
         var returnValue = 0;
@@ -425,9 +415,6 @@ public class SlotManager : MonoBehaviour
             var icon = spawnedIcons[0].GetComponent<Icon>();
             var worldPos = GetWorldPosition(icon.location);
             var iconPos = icon.gameObject.transform.position;
-
-            print("worldPosition: " + worldPos + " | " + "spawnedIcon.transform.position: " +
-                  icon.location);
             
             foreach (var spawnedIcon in spawnedIcons.Where
                      (icon => icon.transform.position != GetWorldPosition(icon.GetComponent<Icon>().location) &&
@@ -436,7 +423,6 @@ public class SlotManager : MonoBehaviour
                 if (notFinished == 0) break;
                 
                 var worldPosition = GetWorldPosition(spawnedIcon.GetComponent<Icon>().location);
-                print("worldPosition: " + worldPosition + " | " + "spawnedIcon.transform.position: " + spawnedIcon.transform.position + " | " + "notFinished: " + notFinished);
 
                 spawnedIcon.transform.position = Vector3.MoveTowards( spawnedIcon.transform.position, 
                     worldPosition, 
