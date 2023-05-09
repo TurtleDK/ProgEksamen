@@ -48,7 +48,6 @@ public class SlotManager : MonoBehaviour
         {
             if (canRoll)
             {
-                StopCoroutines();
                 RollSlot();
             }
             else if (canSkip)
@@ -69,17 +68,6 @@ public class SlotManager : MonoBehaviour
             print("EV: " + EV);
         }
     }
-    
-    private void StopCoroutines()
-    {
-        foreach (var coroutine in runningCoroutine)
-        {
-            if (coroutine == null) continue;
-            StopCoroutine(coroutine);
-        }
-        
-        runningCoroutine.Clear();
-    }
 
     private void RollSlot(bool reRoll = true)
     {
@@ -99,8 +87,7 @@ public class SlotManager : MonoBehaviour
             }
         }
         
-        var coroutine = StartCoroutine(DrawScreen());
-        runningCoroutine.Add(coroutine);
+        StartCoroutine(DrawScreen());
     }
 
     private IEnumerator DrawScreen(bool reDraw = false)
@@ -190,8 +177,7 @@ public class SlotManager : MonoBehaviour
             return;
         }
 
-        var coroutine = StartCoroutine(Wiggle(winIcons));
-        runningCoroutine.Add(coroutine);
+        StartCoroutine(Wiggle(winIcons));
     }
 
     /*
@@ -248,11 +234,32 @@ public class SlotManager : MonoBehaviour
         if (!anyIconsMoved) return;
 
         */
-        
-        //LAV NY MOVEICONSDOWN Som kun køre igennem en gang
 
-        var coroutine = StartCoroutine(DropIcon());
-        runningCoroutine.Add(coroutine);
+        for (int i = 0; i < slots.GetLength(0); i++)
+        {
+            var nonEmptyIcons = new List<Icon>();
+        
+            for (int j = 0; j < slots.GetLength(1); j++)
+            {
+                if (slots[i, j].GetIconType() != emptyIcon.GetIconType())
+                {
+                    nonEmptyIcons.Add(slots[i,j]);
+                }
+            }
+
+            for (int j = 0; j < nonEmptyIcons.Count; j++)
+            {
+                slots[i, j] = nonEmptyIcons[j];
+                slots[i, j].location = new Vector2(i, j);
+            }
+
+            for (int j = nonEmptyIcons.Count; j < slots.GetLength(1); j++)
+            {
+                slots[i, j] = emptyIcon;
+            }
+        }
+
+        StartCoroutine(DropIcon());
 
         //StartCoroutine(Wait(false));
         
@@ -442,9 +449,7 @@ public class SlotManager : MonoBehaviour
         */
 
         yield return new WaitForSeconds(0.5f);
-        
-        var coroutine = StartCoroutine(DrawScreen(true));
-        runningCoroutine.Add(coroutine);
+        StartCoroutine(DrawScreen(true));
     }
 
     // Brugte før til at vente på at alle coroutine var færdige men det tog for meget computer kraft
