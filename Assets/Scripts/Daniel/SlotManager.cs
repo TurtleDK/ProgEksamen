@@ -141,7 +141,7 @@ public class SlotManager : MonoBehaviour
             //Contains the amount of the specific icon type in the slot
             var typeAmount = slots.Cast<Icon>().Count(icon => icon.GetIconType() == type.GetIconType()); 
 
-            /* Samme som den over
+            /* Same as the LINQ above
             var amount = 0;
             
             foreach (var icon in slots)
@@ -150,10 +150,11 @@ public class SlotManager : MonoBehaviour
             }
             */
 
-            if (typeAmount < 8) continue;
+            if (typeAmount < 8) continue; //Goes to the next type if the type amount is less than 8
             
-            connections++;
+            connections++; //Adds one to the total connections
             
+            //Loops through all the icons in the slot where the icon type is the same as the current type
             foreach (var spawnedIcon in spawnedIcons.Where
                      (icon => icon.GetComponent<Icon>().GetIconType() == type.GetIconType()).ToList())
             {
@@ -161,185 +162,126 @@ public class SlotManager : MonoBehaviour
             }
         }
 
-        if (connections == 0)
+        if (connections == 0) //If there is zero connections the player can then re-roll the slot
         {
             canRoll = true;
             return;
         }
 
-        StartCoroutine(Wiggle(winIcons));
+        StartCoroutine(Wiggle(winIcons)); //Starts the wiggle animation for all the winning icons
     }
-
-    /*
-    private bool IsThereEmpty(int row)
-    {
-        for (int i = 0; i < slots.GetLength(1) - 1; i++)
-        {
-            if (slots[row, i].GetIconType() == Icon.Icons.Empty && slots[row, i + 1].GetIconType() != Icon.Icons.Empty)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    */
     
-    private bool IsThereEmpty(int row)
+    private IEnumerator Wiggle(List<GameObject> winIcons) //Makes all the GameObjects inside the "winIcons" list wiggle
     {
-        for (int i = 0; i < slots.GetLength(1) - 1; i++)
+        canSkip = true; //Makes it possible to skip the animation
+        
+        foreach (var icon in winIcons) //Starts the animation foreach GameObject in the list
         {
-            if (slots[row, i].GetIconType() == Icon.Icons.Empty &&
-                slots[row, i + 1].GetIconType() != Icon.Icons.Empty) return true;
+            var anim = icon.GetComponent<Animation>();
+            anim.Play();
         }
-        return false;
+
+        while (!stopWiggle) //While the player hasn't skipped the animation, wait
+        {
+            if (winIcons.Any(icon => icon.GetComponent<Animation>().isPlaying)) yield return null;
+            else stopWiggle = true; //If the animation is done, stop the while loop
+        }
+
+        foreach (var icon in winIcons) //Stops the animation foreach GameObject in the list
+        {
+            var anim = icon.GetComponent<Animation>();
+            anim.Stop();
+            
+            spawnedIcons.Remove(icon);
+            
+            var location = icon.GetComponent<Icon>().location;
+            slots[(int) location.x, (int) location.y] = emptyIcon; //Changes all the winIcons to an empty icon
+            SpawnEmpty(icon); //Spawn an empty icon GameObject at the position
+        }
+
+        yield return new WaitForSeconds(0.5f); //Wait 0.5 seconds
+
+        stopWiggle = false; //Reset the stopWiggle bool
+        
+        MoveIconsDown(); //Function to move all the icons down
+    }
+    
+    private void SpawnEmpty(GameObject replacedIcon) //Function to spawn an empty icon GameObject at the position of the replaced icon
+    {
+        //Spawns an empty icon GameObject at the position of the replaced icon
+        var obj = Instantiate(emptyIcon.gameObject, replacedIcon.transform.position, Quaternion.identity); 
+        obj.GetComponent<Icon>().location = replacedIcon.GetComponent<Icon>().location;
+        spawnedIcons.Add(obj);
+
+        Destroy(replacedIcon); //Destroys the replaced icon
     }
 
-    private void MoveIconsDown()
+    private void MoveIconsDown() //Moves all the icons down
     {
-        
-        /*
-        var anyIconsMoved = false; // Add a flag to check if any icons were moved
-        
-        foreach (var spawnedIcon in spawnedIcons)
-        {
-            var icon = spawnedIcon.GetComponent<Icon>();
-
-            if (icon.GetIconType() != Icon.Icons.Empty) continue;
-
-            var location = icon.location;
-
-            var catchInt = 0;
-            
-            while (IsThereEmpty((int) location.x) && catchInt < slots.GetLength(1))
-            {
-                anyIconsMoved = true; // Set the flag to true if you're moving any icons
-                MoveRowDown((int) location.x, (int) location.y);
-
-                catchInt++;
-            }
-        }
-        
-
-        // Check if any icons were moved before starting the DropIcon coroutine
-        if (!anyIconsMoved) return;
-
-        */
-
+        //Loops through the x axis in the 2D array
         for (int i = 0; i < slots.GetLength(0); i++)
         {
+            //Contains all the non-empty icons in the current y axis
             var nonEmptyIcons = new List<Icon>();
         
+            //Loops through the y axis in the 2D array
             for (int j = 0; j < slots.GetLength(1); j++)
             {
-                if (slots[i, j].GetIconType() != emptyIcon.GetIconType())
-                {
-                    nonEmptyIcons.Add(slots[i,j]);
-                }
+                //If the current icon type is not empty then add it to the list
+                if (slots[i, j].GetIconType() != emptyIcon.GetIconType()) nonEmptyIcons.Add(slots[i,j]);
             }
 
+            //Move all the icons down
             for (int j = 0; j < nonEmptyIcons.Count; j++)
             {
                 slots[i, j] = nonEmptyIcons[j];
                 slots[i, j].location = new Vector2(i, j);
             }
 
+            //Fill the rest of the slots with empty icons
             for (int j = nonEmptyIcons.Count; j < slots.GetLength(1); j++)
             {
                 slots[i, j] = emptyIcon;
             }
         }
 
-        StartCoroutine(DropIcon());
-
-        //StartCoroutine(Wait(false));
-        
+        StartCoroutine(ReDraw()); //Redraw the slot with the moved icons
     }
     
-    /*
-    private void MoveRowDown(int row, int startPoint)
+    private IEnumerator ReDraw() 
     {
-        for (int i = startPoint; i < slots.GetLength(1) - 1; i++)
-        {
-            if (slots[row, i].GetIconType() != Icon.Icons.Empty) break;
-            slots[row, i] = slots[row, i + 1];
-            slots[row, i].location = new Vector2(row, i);
-            slots[row, i + 1] = emptyIcon;
-        }
+        yield return new WaitForSeconds(0.5f); //Waits 0.5 seconds
+        StartCoroutine(DrawScreen(true)); //Redraws the screen
     }
-    */
-    
-    /*
-    private void MoveIconsDown()
+
+    private Icon GetRandomIcon() //Gets a random icon based on the drop chance
     {
-        foreach (var spawnedIcon in spawnedIcons)
-        {
-            var icon = spawnedIcon.GetComponent<Icon>();
+        var rndValue = rnd.Next(0, GetMaxChance() + 1); //Gets a random value between 0 and the max chance
 
-            if (icon.GetIconType() != Icon.Icons.Empty) continue;
-
-            var location = icon.location;
-            
-            while (IsThereEmpty((int) location.x)) 
-                MoveRowDown((int) location.x, (int) location.y);
-        }
-
-        foreach (var spawnedIcon in spawnedIcons.Where
-                     (icon => icon.transform.position != GetWorldPosition(icon.GetComponent<Icon>().location) &&
-                              icon.GetComponent<Icon>().GetIconType() != Icon.Icons.Empty))
-        {
-            amountMax++;
-
-            StartCoroutine(DropIcon(spawnedIcon));
-        }
+        var currentChance = 0; //Sets currentChance
+        var returnIcon = emptyIcon; //Sets the return icon to the empty icon
         
-        StartCoroutine(Wait(false));
-    }
-    
-
-    private void MoveRowDown(int row, int startPoint)
-    {
-        for (int i = startPoint; i < slots.GetLength(1) - 1; i++)
+        foreach (var icon in allIcons) //Loops through all the icons
         {
-            slots[row, i] = slots[row, i + 1];
-            slots[row, i].location = new Vector2(row, i);
-            slots[row, i + 1] = emptyIcon;
-        }
-    }
+            //Checks if the random value is between the current chance and the current chance + the icon drop chance
+            if (rndValue >= currentChance && rndValue <= currentChance + icon.GetDropChance())
+            {
+                returnIcon = icon; //return icon is set to the current icon
+                break;
+            } 
 
-    /*
-    private bool IsThereEmpty(int row)
-    {
-        for (int i = 0; i < slots.GetLength(1) - 1; i++)
-        {
-            if (slots[row, i].GetIconType() == Icon.Icons.Empty &&
-                slots[row, i + 1].GetIconType() != Icon.Icons.Empty) return true;
-        }
-        return false;
-    }
-    */
-
-    private Icon GetRandomIcon()
-    {
-        var rndValue = rnd.Next(0, GetMaxChance() + 1);
-
-        var currentChance = 0;
-        var returnIcon = emptyIcon;
-        
-        foreach (var icon in allIcons)
-        {
-            if (rndValue >= currentChance && rndValue <= currentChance + icon.GetDropChance()) returnIcon = icon;
-
+            //Adds the current icon drop chance to the current chance
             currentChance += icon.GetDropChance();
         }
         
-        return returnIcon;
+        return returnIcon; 
     }
 
     private int GetMaxChance()
     {
-        return allIcons.Sum(icon => icon.GetDropChance());
+        return allIcons.Sum(icon => icon.GetDropChance()); //Gets the sum of all the icon drop chances
         
-        /* Det samme som den her
+        /* Is the same as the LINQ above
         var returnValue = 0;
         
         foreach (var icon in icons)
@@ -350,114 +292,4 @@ public class SlotManager : MonoBehaviour
         return returnValue;
         */
     }
-
-    private Vector3 GetWorldPosition(Vector2 location)
-    {
-        return new Vector3(location.x - (float)slots.GetLength(0) / 2f, location.y - (float)slots.GetLength(1) / 2f);
-    }
-    
-    private IEnumerator Wiggle(List<GameObject> winIcons)
-    {
-        canSkip = true;
-        
-        foreach (var icon in winIcons)
-        {
-            var anim = icon.GetComponent<Animation>();
-            anim.Play();
-        }
-
-        while (!stopWiggle)
-        {
-            if (winIcons.Any(icon => icon.GetComponent<Animation>().isPlaying)) yield return null;
-            else stopWiggle = true;
-        }
-
-        foreach (var icon in winIcons)
-        {
-            var anim = icon.GetComponent<Animation>();
-            anim.Stop();
-            
-            spawnedIcons.Remove(icon);
-            
-            var location = icon.GetComponent<Icon>().location;
-            slots[(int) location.x, (int) location.y] = emptyIcon;
-            SpawnEmpty(icon);
-        }
-
-        yield return new WaitForSeconds(0.5f);
-
-        stopWiggle = false;
-        
-        MoveIconsDown();
-    }
-
-    private void SpawnEmpty(GameObject replacedIcon)
-    {
-        var obj = Instantiate(emptyIcon.gameObject, replacedIcon.transform.position, Quaternion.identity);
-        obj.GetComponent<Icon>().location = replacedIcon.GetComponent<Icon>().location;
-        spawnedIcons.Add(obj);
-
-        Destroy(replacedIcon);
-    }
-
-    private IEnumerator DropIcon()
-    {
-        /*
-        const float step = 2f;
-
-        var counted = false;
-
-        var notFinished = 0;
-
-        
-        while (notFinished > 0)
-        {
-            var icon = spawnedIcons[0].GetComponent<Icon>();
-            var worldPos = GetWorldPosition(icon.location);
-            var iconPos = icon.gameObject.transform.position;
-            
-            foreach (var spawnedIcon in spawnedIcons.Where
-                     (icon => icon.transform.position != GetWorldPosition(icon.GetComponent<Icon>().location) &&
-                              icon.GetComponent<Icon>().GetIconType() != Icon.Icons.Empty))
-            {
-                if (notFinished == 0) break;
-                
-                var worldPosition = GetWorldPosition(spawnedIcon.GetComponent<Icon>().location);
-
-                spawnedIcon.transform.position = Vector3.MoveTowards( spawnedIcon.transform.position, 
-                    worldPosition, 
-                    step * Time.deltaTime);
-                
-                if (Vector2.Distance(spawnedIcon.transform.position, worldPosition) < 0.01f) notFinished--;
-            }
-            yield return null;
-        }
-        */
-
-        yield return new WaitForSeconds(0.5f);
-        StartCoroutine(DrawScreen(true));
-    }
-
-    // Brugte før til at vente på at alle coroutine var færdige men det tog for meget computer kraft
-    /*
-    private IEnumerator Wait(bool wiggle)
-    {
-        while (amount < amountMax)
-        {
-            yield return null;
-        }
-        
-        amount = 0;
-        amountMax = 0;
-        
-        if (wiggle) stopWiggle = false;
-
-        if (wiggle) MoveIconsDown();
-        else
-        {
-            var coroutine = StartCoroutine(DrawScreen(true));
-            runningCoroutine.Add(coroutine);
-        }
-    }
-    */
 }
