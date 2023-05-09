@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Agger scene.unity
+    guid: 33cf29d6e1bf6634d907169d6bdd6afb
+  - enabled: 1
     path: Assets/Scenes/SlotScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   m_configObjects: {}

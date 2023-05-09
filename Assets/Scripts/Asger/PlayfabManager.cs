@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using PlayFab;
 using PlayFab.ClientModels;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class PlayfabManager : MonoBehaviour
 {
@@ -30,6 +31,7 @@ public class PlayfabManager : MonoBehaviour
     void OnRegisterSucess(RegisterPlayFabUserResult result)
     {
         messageText.text = "Registered and logged in :)";
+        StartCoroutine(LoadNextScene());
     }
     void OnError(PlayFabError error)
     {
@@ -49,7 +51,7 @@ public class PlayfabManager : MonoBehaviour
     {
         messageText.text = "Logged in :)";
         Debug.Log("Account sucessfulled logged in :O");
-
+        StartCoroutine(LoadNextScene());
     }
     public void ResetPasswordButton()
     {
@@ -63,6 +65,13 @@ public class PlayfabManager : MonoBehaviour
     void OnPasswordReset(SendAccountRecoveryEmailResult result)
     {
         messageText.text = "Password reset email send :)"; 
+
     }
 
+    IEnumerator LoadNextScene()
+    {
+        yield return new WaitForSeconds(2);
+        SceneManager.LoadScene(+1);
+        Debug.Log("Loaded next scene");
+    }
 }
